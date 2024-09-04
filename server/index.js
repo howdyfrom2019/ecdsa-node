@@ -1,16 +1,28 @@
 const express = require("express");
 const app = express();
 const cors = require("cors");
+const AddressService = require("./service/address.service");
 const port = 3042;
 
 app.use(cors());
 app.use(express.json());
 
-const balances = {
-  "0x1": 100,
-  "0x2": 50,
-  "0x3": 75,
-};
+const address = new AddressService();
+
+const balances = address.getAddress();
+
+app.get("/balance", (req, res) => {
+  const balance = Object.entries(balances).map(([addr, balance]) => ({
+    address: addr,
+    balance: balance,
+  }));
+
+  res.send(balance);
+});
+
+app.get("/private-key", (req, res) => {
+  res.send(address.getPrivateKey());
+});
 
 app.get("/balance/:address", (req, res) => {
   const { address } = req.params;
